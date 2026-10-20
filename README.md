@@ -110,3 +110,10 @@ To push your compiled `.uf2` binary to the custom target:
    * Release the **BOOTSEL** button once the device mounts.
 2. **Identify the Drive:** The board will enumerate on your operating system file manager as a mass storage volume named **RP2-V3** (or similar RP2350 standard designation).
 3. **Deploy the Firmware:** Drag and drop your compiled `firmware.uf2` binary directly into the root folder of this drive. The drive will automatically unmount, flash the flash memory storage blocks, and reboot as an active Meshtastic mesh participant.
+
+---
+
+## ☕ Support My Work
+If this open hardware project brings utility to you, consider supporting my design pipeline!
+
+[![Buy Me A Coffee](https://img.shields.io/badge/buy_me_a_coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/mark.birss)
