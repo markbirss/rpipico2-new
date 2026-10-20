@@ -1,0 +1,79 @@
+// #define RADIOLIB_CUSTOM_ARDUINO 1
+// #define RADIOLIB_TONE_UNSUPPORTED 1
+// #define RADIOLIB_SOFTWARE_SERIAL_UNSUPPORTED 1
+
+#define ARDUINO_ARCH_AVR
+
+// default I2C pins:
+// SDA = 4
+// SCL = 5
+
+// Recommended pins for SerialModule:
+// txd = 8
+// rxd = 9
+
+#define EXT_NOTIFY_OUT 22
+#define BUTTON_PIN 17
+
+#define LED_POWER PIN_LED
+
+#define EXT_PWR_DETECT 24
+#define BATTERY_PIN 29
+#define ADC_MULTIPLIER 3.0
+#define BATTERY_SENSE_RESOLUTION_BITS 12
+// No real battery — suppress false "battery at 100%" while USB powers VSYS
+#define NO_BATTERY_LEVEL_ON_CHARGE
+
+//#define USE_SX1262
+//#define USE_LR1121
+#define USE_LR2021
+
+#undef LORA_SCK
+#undef LORA_MISO
+#undef LORA_MOSI
+#undef LORA_CS
+
+#define LORA_SCK 10
+#define LORA_MISO 12
+#define LORA_MOSI 11
+#define LORA_CS 13
+
+#define LORA_DIO0 RADIOLIB_NC
+#define LORA_RESET 7
+#define LORA_DIO1 6
+#define LORA_DIO2 8
+#define LORA_DIO3 RADIOLIB_NC
+
+// NICERF CORELR2021 TCXO
+#ifdef USE_LR2021
+#define LR2021_IRQ_PIN LORA_DIO1
+#define LR2021_NRESET_PIN LORA_RESET
+#define LR2021_BUSY_PIN LORA_DIO2
+#define LR2021_SPI_NSS_PIN LORA_CS
+#define LR2021_DIO3_TCXO_VOLTAGE 1.6
+#define LR2021_DIO_AS_RF_SWITCH
+#define LR2021_IRQ_DIO_NUM 9
+//#define LR2021_MAX_POWER_HF 5
+//#define LR2021_MAX_POWER 5
+#endif
+
+#ifdef USE_LR1121
+#define LR1121_IRQ_PIN LORA_DIO1
+#define LR1121_NRESET_PIN LORA_RESET
+#define LR1121_BUSY_PIN LORA_DIO2
+#define LR1121_SPI_NSS_PIN LORA_CS
+#define LR1121_SPI_SCK_PIN LORA_SCK
+#define LR1121_SPI_MOSI_PIN LORA_MOSI
+#define LR1121_SPI_MISO_PIN LORA_MISO
+#define LR11X0_DIO3_TCXO_VOLTAGE 1.8
+#define LR11X0_DIO_AS_RF_SWITCH
+#endif
+
+#ifdef USE_SX1262
+#define SX126X_CS LORA_CS
+#define SX126X_DIO1 LORA_DIO1
+#define SX126X_BUSY LORA_DIO2
+#define SX126X_RESET LORA_RESET
+#define SX126X_DIO2_AS_RF_SWITCH
+#define SX126X_DIO3_TCXO_VOLTAGE 1.8
+#endif
