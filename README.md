@@ -11,15 +11,14 @@ This repository contains the firmware configurations and building blocks for a c
 ### Unassembled Components & PCBs
 ![Unassembled Hardware Components]
 
-(<img width="1848" height="2621" alt="image" src="https://github.com/user-attachments/assets/db6e1c4b-e6ea-4334-a5a8-f9d440fd9a51" />
-g)
+<img width="1848" height="2621" alt="image" src="https://github.com/user-attachments/assets/db6e1c4b-e6ea-4334-a5a8-f9d440fd9a51" />
 
 *Left: Raspberry Pi Pico 2 (RP2350) microcontrollers in packaging. Right: Custom integration carrier PCBs alongside the G-NiceRF LoRa2021F33-2G4 modules and antenna.*
 
 ### Completed Assembly & Test Run
 ![Assembled Running Node]
 
-(<img width="3198" height="1036" alt="image" src="https://github.com/user-attachments/assets/8f381764-eb2d-446d-835f-2a57db9acf3a" />)
+<img width="3198" height="1036" alt="image" src="https://github.com/user-attachments/assets/8f381764-eb2d-446d-835f-2a57db9acf3a" />
 
 *The fully soldered node featuring the RP2350 sandwich-mounted onto the carrier board, powered over USB, and connected to the 2.4 GHz SMA antenna pigtail.*
 
