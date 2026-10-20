@@ -1,62 +1,106 @@
 # rpipico2-new
 
-# DIY Meshastic Node (RP2350 + G-NiceRF LoRa2021F33-2G4)
+# Custom Meshtastic DIY Node (RP2350 + G-NiceRF LoRa2021F33-2G4)
 
-This repository contains the hardware configuration and firmware variant definition for a custom **Meshastic** node built using the **Raspberry Pi RP2350** microcontroller paired with the **G-NiceRF LoRa2021F33-2G4** (2.4GHz) LoRa module.
+This repository contains the firmware configurations and building blocks for a custom DIY **Meshtastic node** utilizing the high-performance **Raspberry Pi Pico 2 (RP2350)** microcontroller paired with the **G-NiceRF LoRa2021F33-2G4** (SX1280/LR2021 based) 2.4 GHz wireless module.
 
-## 🛠️ Hardware Specifications & Configuration
+---
 
-Based on the custom `variant.h` configuration, the pin mapping for the RP2350 to the LoRa module and peripherals is defined below.
+## 🖼️ Hardware Gallery
 
-### 📡 LoRa Module Pinout (G-NiceRF LR2021)
-The module is driven by RadioLib using the `USE_LR2021` definitions, utilising a custom TCXO voltage setup and automated RF switching.
+### Unassembled Components & PCBs
+![Unassembled Hardware Components](image_DBczvs.png)
+*Left: Raspberry Pi Pico 2 (RP2350) microcontrollers in packaging. Right: Custom integration carrier PCBs alongside the G-NiceRF LoRa2021F33-2G4 modules and antenna.*
 
-| Function | RP2350 GPIO Pin | Description |
+### Completed Assembly & Test Run
+![Assembled Running Node](image_NLzsP1.png)
+*The fully soldered node featuring the RP2350 sandwich-mounted onto the carrier board, powered over USB, and connected to the 2.4 GHz SMA antenna pigtail.*
+
+---
+
+## 🛠️ Hardware Credits & Attribution
+The custom breakout / sandwich carrier board layout used in this build is based on the open-source KiCad design by **jlpoltrack**. 
+
+* **Original Repository:** [jlpoltrack/Pi-Pico-NiceRF-LR2021](https://github.com)
+* **Design Usage:** The production Gerbers and footprint layout configurations from their repository were utilized to create the compact carrier PCB that adapts the Raspberry Pi form factor directly to the G-NiceRF surface-mount module footprint.
+
+---
+
+## 📂 Source Tree Integration
+
+To map this target into the official Meshtastic firmware source tree, place your configuration file within the target architecture variants folder:
+
+```text
+firmware/
+└── src/
+    └── variants/
+        └── pico2_lr2021/
+            └── variant.h  <-- Place your configuration file here
+```
+
+---
+
+## 📌 Pin Configuration (`variant.h`)
+
+The module communicates over a dedicated SPI bus using the RadioLib abstraction framework. Below is the precise map configured in this project's target `variant.h` file:
+
+### LoRa SPI & Radio Control Bus (G-NiceRF LR2021)
+
+| Signal Name | RP2350 GPIO Pin | Description |
 | :--- | :---: | :--- |
 | **LORA_SCK** | **10** | SPI Clock |
-| **LORA_MISO** | **12** | SPI Master In Slave Out |
 | **LORA_MOSI** | **11** | SPI Master Out Slave In |
-| **LORA_CS / NSS** | **13** | SPI Chip Select |
-| **LORA_RESET** | **7** | Reset Pin (`LR2021_NRESET_PIN`) |
-| **LORA_DIO1** | **6** | Interrupt Request (`LR2021_IRQ_PIN`) |
-| **LORA_DIO2** | **8** | Busy Indicator Pin (`LR2021_BUSY_PIN`) |
+| **LORA_MISO** | **12** | SPI Master In Slave Out |
+| **LORA_CS** / NSS | **13** | SPI Chip Select |
+| **LORA_RESET** | **7** | Hardware Reset Pin |
+| **LORA_DIO1** (IRQ) | **6** | Radio Interrupt Pin (`LR2021_IRQ_PIN`) |
+| **LORA_DIO2** (BUSY) | **8** | Radio Busy State Indicator (`LR2021_BUSY_PIN`) |
+| **LORA_DIO0** | *RADIOLIB_NC* | Not Connected |
+| **LORA_DIO3** | *RADIOLIB_NC* | Not Connected |
 
-**Special RF Settings:**
-* **TCXO Voltage:** Programmatically set to **1.6V** via `LR2021_DIO3_TCXO_VOLTAGE`.
-* **RF Switch:** Managed automatically via `LR2021_DIO_AS_RF_SWITCH`.
-* **IRQ Line:** Configured as `LR2021_IRQ_DIO_NUM 9`.
+### Core System & Power Architecture Flags
+* **TCXO Voltage Control:** Activated via `#define LR2021_DIO3_TCXO_VOLTAGE 1.6` to feed a stable **1.6V** reference directly to the module's crystal oscillator.
+* **RF Switch Management:** Automated handling enabled using the `#define LR2021_DIO_AS_RF_SWITCH` rule.
+* **USB Power Suppression:** `#define NO_BATTERY_LEVEL_ON_CHARGE` is enabled alongside an ADC multiplier of `3.0` on pin `29`. This explicitly suppresses a false "100% full battery" UI report inside Meshtastic clients while the device runs solely on USB VBUS power without a real physical cell connected.
 
----
-
-### 🔌 Peripherals & Modules
-
-| Peripheral | GPIO Pin | Description |
-| :--- | :---: | :--- |
-| **I2C SDA** | **4** | Standard I2C Data (Display / Sensors) |
-| **I2C SCL** | **5** | Standard I2C Clock (Display / Sensors) |
-| **Serial TXD** | **8** | Recommended for SerialModule |
-| **Serial RXD** | **9** | Recommended for SerialModule |
-| **BUTTON_PIN** | **17** | User Input / Wake / Pair Button |
-| **EXT_NOTIFY_OUT**| **22** | External Notification Output (Buzzer/Vibe) |
-| **EXT_PWR_DETECT**| **24** | VBUS / External Power Detection |
-| **LED_POWER** | `PIN_LED` | System Power Indicator Status LED |
+### Peripheral / Extension Breakouts
+* **I2C Interface (Screen / Sensors):** SDA = **GPIO 4** | SCL = **GPIO 5**
+* **Serial Module (GPS / Telemetry):** TXD = **GPIO 8** | RXD = **GPIO 9**
+* **User Input & Indicators:** User Button = **GPIO 17** | Status LED = `PIN_LED`
+* **Notification Output:** **GPIO 22** (`EXT_NOTIFY_OUT`)
+* **External Power Sense:** **GPIO 24** (`EXT_PWR_DETECT`)
 
 ---
 
-### 🔋 Power & Battery Management
-
-* **Battery Sense Pin:** Connected to **GPIO 29** (`BATTERY_PIN`).
-* **ADC Resolution:** Configured for **12-bit** (`BATTERY_SENSE_RESOLUTION_BITS 12`).
-* **ADC Multiplier:** **3.0** to correctly calculate scaled battery voltage divider circuits.
-* **USB Power Handling:** `NO_BATTERY_LEVEL_ON_CHARGE` is explicitly defined to suppress false "100% battery" reports while operating purely via USB power (VSYS).
+## ⚡ Build & Compile Prerequisites
+When compiling this firmware flavor using PlatformIO, ensure your environment target points to the target RP2350 system architecture. Due to the custom radio configuration stack, the following baseline parameters are applied during pre-compilation:
+```cpp
+#define ARDUINO_ARCH_AVR // Architecture fallback mapping descriptor
+// RadioLib overrides
+// #define RADIOLIB_CUSTOM_ARDUINO 1 
+// #define RADIOLIB_TONE_UNSUPPORTED 1 
+// #define RADIOLIB_SOFTWARE_SERIAL_UNSUPPORTED 1
+```
 
 ---
 
-## 🚀 Firmware Compilation
+## 🎛️ Diagnostic Verification
 
-To integrate this configuration into your local **Meshastic firmware** build environment:
+If you experience hardware initialization or communication faults, check the following software behaviors:
 
-1. Copy your custom configuration or modify the targets under `firmware/variants/` to include these pin mappings.
-2. Ensure your build environment utilizes the RP2350 platform environment framework.
-3. Verify that **RadioLib** is correctly targeted to build with **LR2021** (2.4GHz) support enabled.
+1. **TCXO Lock Verification:** If the radio fails to initialize (`Radio initialization failed` or `Error -2` loop in the logs), verify if the module requires closer to `1.8` instead of `1.6` volts for the internal oscillator, or ensure the line isn't floating.
+2. **Busy Pin Inversion:** The `#define LR2021_BUSY_PIN LORA_DIO2` relies on a fast state change line. Ensure no solder bridge exists across the fine pitched pins on the G-NiceRF module between pins 6, 7, and 8.
+3. **Serial Terminal Monitor:** Hook up a serial debugger to verify that the node isn't continuously looping through watchdogs due to missing I2C devices on pins 4/5 if standard modules are expected by default configurations.
 
+---
+
+## 💾 Flashing Guide
+
+To push your compiled `.uf2` binary to the custom target:
+
+1. **Enter Bootloader Mode:** 
+   * Press and hold the physical **BOOTSEL** button on the Raspberry Pi Pico 2.
+   * Connect the device to your computer via a Micro-USB/USB-C cable.
+   * Release the **BOOTSEL** button once the device mounts.
+2. **Identify the Drive:** The board will enumerate on your operating system file manager as a mass storage volume named **RP2-V3** (or similar RP2350 standard designation).
+3. **Deploy the Firmware:** Drag and drop your compiled `firmware.uf2` binary directly into the root folder of this drive. The drive will automatically unmount, flash the flash memory storage blocks, and reboot as an active Meshtastic mesh participant.
