@@ -21,6 +21,7 @@ This repository contains the firmware configurations and building blocks for a c
 <img width="3198" height="1036" alt="image" src="https://github.com/user-attachments/assets/8f381764-eb2d-446d-835f-2a57db9acf3a" />
 
 *The fully soldered node featuring the RP2350 sandwich-mounted onto the carrier board, powered over USB, and connected to the 2.4 GHz SMA antenna pigtail.*
+## NOTE: RP230 is mounted one row off board !
 
 ---
 
